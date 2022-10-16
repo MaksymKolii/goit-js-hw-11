@@ -38,10 +38,10 @@ const serchImagesByKeyWorld = new SerchImagesByKeyWorld();
 function onInputChange(e) {
   serchImagesByKeyWorld.word = e.target.value;
 // serch= e.target.value
-
+if (serchImagesByKeyWorld.word === '') return
    serchImagesByKeyWorld.fetchImagesByKeyWorld()
 
-   console.log(serchImagesByKeyWorld.fetchImagesByKeyWorld);
+   //console.log(serchImagesByKeyWorld.fetchImagesByKeyWorld);
 // getUser(serch)
 }
 
