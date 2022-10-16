@@ -13,7 +13,7 @@ import { SerchImagesByKeyWorld } from './searchApi';
 // Your API key: 30620047-2b41fea3ffb04e82a67076d5b
 
 // https://pixabay.com/api?key=30620047-2b41fea3ffb04e82a67076d5b&image_type=photo&orientation=horizontal&safesearch=true
- const axios = require('axios').default;
+const axios = require('axios').default;
 
 //   axios({
 //     method: 'get',
@@ -31,20 +31,19 @@ const refs = {
 
 refs.input.addEventListener('input', onInputChange);
 
-let serch =''
+let serch = '';
 
 const serchImagesByKeyWorld = new SerchImagesByKeyWorld();
 
 function onInputChange(e) {
   serchImagesByKeyWorld.word = e.target.value;
-// serch= e.target.value
-if (serchImagesByKeyWorld.word === '') return
-   serchImagesByKeyWorld.fetchImagesByKeyWorld()
+  // serch= e.target.value
+  if (serchImagesByKeyWorld.word === '') return;
+  serchImagesByKeyWorld.fetchImagesByKeyWorld();
 
-   //console.log(serchImagesByKeyWorld.fetchImagesByKeyWorld);
-// getUser(serch)
+  //console.log(serchImagesByKeyWorld.fetchImagesByKeyWorld);
+  // getUser(serch)
 }
-
 
 // async function getUser(serch) {
 //     try {
