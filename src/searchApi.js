@@ -3,6 +3,12 @@ const URL = 'https://pixabay.com/api/';
 const Filter = 'image_type=photo&orientation=horizontal&safesearch=true';
 const axios = require('axios').default;
 
+// const options ={
+//   headers:{
+
+//   }
+// }
+
 export class SerchImagesByKeyWorld {
   constructor() {
     this.keyWorld = '';

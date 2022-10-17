@@ -1,5 +1,7 @@
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
 
+import { galleryItems } from './gallery-items';
+
 import SimpleLightbox from 'simplelightbox';
 // Дополнительный импорт стилей
 import 'simplelightbox/dist/simple-lightbox.min.css';
@@ -18,6 +20,7 @@ import { SerchImagesByKeyWorld } from './searchApi';
 const refs = {
   form: document.querySelector('#search-form'),
   input: document.querySelector('input[name="searchQuery"]'),
+  galleryElRef:document.querySelector(".gallery"),
 };
 
 refs.input.addEventListener('input', onInputChange);
@@ -26,7 +29,89 @@ refs.input.addEventListener('input', onInputChange);
 const serchImagesByKeyWorld = new SerchImagesByKeyWorld();
 
 function onInputChange(e) {
+
+ // refs.galleryElRef.insertAdjacentHTML("beforeend", makeGalleryMarkup(galleryItems));
   serchImagesByKeyWorld.word = e.target.value;
   if (serchImagesByKeyWorld.word === '') return;
-  serchImagesByKeyWorld.getUser();
+  serchImagesByKeyWorld.getUser().then(data =>{
+
+   refs.galleryElRef.insertAdjacentHTML("beforeend", makeGalleryMarkup(galleryItems));
+   
+
+  })
+  .catch(function (error) {
+    if (error.response) {
+      // Запрос был сделан, и сервер ответил кодом состояния, который
+      // выходит за пределы 2xx
+      console.log(error.response.data);
+      console.log(error.response.status);
+      console.log(error.response.headers);
+    } else if (error.request) {
+      // Запрос был сделан, но ответ не получен
+      // `error.request`- это экземпляр XMLHttpRequest в браузере и экземпляр
+      // http.ClientRequest в node.js
+      console.log(error.request);
+    } else {
+      // Произошло что-то при настройке запроса, вызвавшее ошибку
+      console.log('Error', error.message);
+    }
+    console.log(error.config);
+  });
+
+  
+}
+
+
+// refs.galleryElRef.insertAdjacentHTML("beforeend", makeGalleryMarkup(galleryItems));
+
+new SimpleLightbox(".gallery__link", {
+  captionsData: "alt",
+  captionDelay: 250,
+});
+
+// function makeGalleryMarkup(object) {
+//   return object
+//     .map(
+//       ({ webformatURL, largeImageURL , tags , likes , views , comments, downloads  }) => `<li class="gallery__item">
+//               <a class="gallery__link" href="${largeImageURL}">
+//               <div class="photo-card">
+//               <img src="${webformatURL}" alt="${tags}" loading="lazy" />
+//               <div class="info">
+//                 <p class="info-item">
+//                   <b>Likes${likes}</b>
+//                 </p>
+//                 <p class="info-item">
+//                   <b>Views${views}</b>
+//                 </p>
+//                 <p class="info-item">
+//                   <b>Comments${comments}</b>
+//                 </p>
+//                 <p class="info-item">
+//                   <b>Downloads${downloads}</b>
+//                 </p>
+//               </div>
+//             </div>
+//               </a>
+//           </li>
+          
+//           `
+//     )
+//     .join("");
+// }
+
+
+function makeGalleryMarkup(object) {
+  return object
+    .map(
+      ({ original, preview, description }) => `<li class="gallery__item">
+              <a class="gallery__link" href="${original}">
+                   <img
+                      class="gallery__image"
+                      src="${preview}"
+                      alt="${description}"
+                  />
+              </a>
+          </li>`
+    )
+    .join("");
 }
