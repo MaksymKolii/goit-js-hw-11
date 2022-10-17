@@ -19,44 +19,44 @@ import { SerchImagesByKeyWorld } from './searchApi';
 
 const refs = {
   form: document.querySelector('#search-form'),
-  input: document.querySelector('input[name="searchQuery"]'),
+  // input: document.querySelector('input[name="searchQuery"]'),
   galleryElRef:document.querySelector(".gallery"),
 };
 
-refs.input.addEventListener('input', onInputChange);
+refs.form.addEventListener('submit', onSubmit);
 
 
 const serchImagesByKeyWorld = new SerchImagesByKeyWorld();
 
-function onInputChange(e) {
+function onSubmit(e) {
 
- // refs.galleryElRef.insertAdjacentHTML("beforeend", makeGalleryMarkup(galleryItems));
-  serchImagesByKeyWorld.word = e.target.value;
-  if (serchImagesByKeyWorld.word === '') return;
-  serchImagesByKeyWorld.getUser().then(data =>{
+  serchImagesByKeyWorld.word = e.currentTarget.elements.searchQuery.value;
+  //if (serchImagesByKeyWorld.word === '') return;
+  serchImagesByKeyWorld.getUser()
+  // .then(data =>{
 
-   refs.galleryElRef.insertAdjacentHTML("beforeend", makeGalleryMarkup(galleryItems));
+  // //  refs.galleryElRef.insertAdjacentHTML("beforeend", makeGalleryMarkup(galleryItems));
    
 
-  })
-  .catch(function (error) {
-    if (error.response) {
-      // Запрос был сделан, и сервер ответил кодом состояния, который
-      // выходит за пределы 2xx
-      console.log(error.response.data);
-      console.log(error.response.status);
-      console.log(error.response.headers);
-    } else if (error.request) {
-      // Запрос был сделан, но ответ не получен
-      // `error.request`- это экземпляр XMLHttpRequest в браузере и экземпляр
-      // http.ClientRequest в node.js
-      console.log(error.request);
-    } else {
-      // Произошло что-то при настройке запроса, вызвавшее ошибку
-      console.log('Error', error.message);
-    }
-    console.log(error.config);
-  });
+  // })
+  // .catch(function (error) {
+  //   if (error.response) {
+  //     // Запрос был сделан, и сервер ответил кодом состояния, который
+  //     // выходит за пределы 2xx
+  //     console.log(error.response.data);
+  //     console.log(error.response.status);
+  //     console.log(error.response.headers);
+  //   } else if (error.request) {
+  //     // Запрос был сделан, но ответ не получен
+  //     // `error.request`- это экземпляр XMLHttpRequest в браузере и экземпляр
+  //     // http.ClientRequest в node.js
+  //     console.log(error.request);
+  //   } else {
+  //     // Произошло что-то при настройке запроса, вызвавшее ошибку
+  //     console.log('Error', error.message);
+  //   }
+  //   console.log(error.config);
+  // });
 
   
 }
