@@ -1,60 +1,27 @@
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
-import LoadMoreBtn from '../src/js-components/loadMoreBtn'
+import LoadMoreBtn from '../src/js-components/loadMoreBtn';
 
 import SimpleLightbox from 'simplelightbox';
-// Дополнительный импорт стилей
 import 'simplelightbox/dist/simple-lightbox.min.css';
-
 import { SerchImagesByKeyWord } from './searchApi';
-const URL = 'https://pixabay.com/api/';
-//const Filter = 'image_type=photo&orientation=horizontal&safesearch=true';
- const axios = require('axios').default;
 
-//import axios from 'axios';
-// const axios = require('axios');
+// const URL = 'https://pixabay.com/api/';
+// const searchParams = new URLSearchParams({
+//   key: '30620047-2b41fea3ffb04e82a67076d5b',
+//   image_type: 'photo',
+//   orientation: 'horizontal',
+//   safesearch: true,
+//   per_page: 40,
+// });
+// let query = '';
+// let page = 1;
 
-const searchParams = new URLSearchParams({
-  key: '30620047-2b41fea3ffb04e82a67076d5b',
-  image_type: 'photo',
-  orientation: 'horizontal',
-  safesearch: true,
-  per_page: 40,
-});
+// const axios = require('axios').default;
 
+const serchImagesByKeyWord = new SerchImagesByKeyWord();
 
-    let keyWord = '';
-    let page = 1;
-  
-
- function fetchImagesByKeyWord(keyWord, page) {
-    const search = `${URL}?q=${keyWord}&${searchParams}&page=${page}`;
-
-    // return fetch(search).then(response => {
-    //   if (!response.ok) {
-    //     throw new Error(response.status);
-    //   }
-    //   return response.json();
-    // });
-
-   return axios.get(search)
-      .then(function (response) {
-        // handle success
-        //makeGalleryMarkup(response.data)
-        console.log(response.data);
-        //return response;
-      })
-      .catch(function (error) {
-        // handle error
-        console.log(error);
-      })
-      .then(function () {
-        // always executed
-      });
-  }
-  fetchImagesByKeyWord()
-
-new SimpleLightbox(".gallery__link", {
-  captionsData: "alt",
+new SimpleLightbox('.gallery__link', {
+  captionsData: 'alt',
   captionDelay: 250,
 });
 // const API_KEY = '30620047-2b41fea3ffb04e82a67076d5b';
@@ -67,83 +34,85 @@ new SimpleLightbox(".gallery__link", {
 
 const refs = {
   form: document.querySelector('#search-form'),
-  galleryElRef:document.querySelector(".gallery"),
-  loadMoreBtn: document.querySelector('.load-more')
+  galleryElRef: document.querySelector('.gallery'),
+  loadMoreBtn: document.querySelector('.load-more'),
 };
 
 refs.form.addEventListener('submit', onSubmit);
+//refs.loadMoreBtn.addEventListener('click', onLoadMore)
 
-// const loadMoreBtn = new LoadMoreBtn({
-//   selector: '[data-action="load-more"]',
+async function onSubmit(e) {
+  e.preventDefault();
 
-//   hidden: false,
-// });
+  // Last$working
+  //   query = e.target.elements.searchQuery.value;
+  //   if(!query){
+  //     alert("Enter something")
+  //     return
+  //   }
+  //    const search = `${URL}?q=${query}&${searchParams}&page=${page}`;
+  //  getUser(search)
 
-const serchImagesByKeyWord = new SerchImagesByKeyWord();
+  serchImagesByKeyWord.word = e.target.elements.searchQuery.value;
 
-// function onSubmit(e) {
-//   e.preventDefault()
-//   serchImagesByKeyWord.word = e.target.elements.searchQuery.value;
+  if (serchImagesByKeyWord.word === '') return;
 
-//   if (serchImagesByKeyWord.word === '') return;
+  serchImagesByKeyWord.fetchImages();
 
+  const array = await serchImagesByKeyWord.fetchImages();
 
-//   serchImagesByKeyWord.fetchImagesByKeyWord().then((artic)=> {
-//     //console.log(artic);
-//     return artic
-   
-//     //makeGalleryMarkup(artic.hits)
-//   })
-
-
-
-//   // .catch(function (error) {
-//   //   if (error.response) {
-//   //     // Запрос был сделан, и сервер ответил кодом состояния, который
-//   //     // выходит за пределы 2xx
-//   //     console.log(error.response.data);
-//   //     console.log(error.response.status);
-//   //     console.log(error.response.headers);
-//   //   } else if (error.request) {
-//   //     // Запрос был сделан, но ответ не получен
-//   //     // `error.request`- это экземпляр XMLHttpRequest в браузере и экземпляр
-//   //     // http.ClientRequest в node.js
-//   //     console.log(error.request);
-//   //   } else {
-//   //     // Произошло что-то при настройке запроса, вызвавшее ошибку
-//   //     console.log('Error', error.message);
-//   //   }
-//   //   console.log(error.config);
-//   // });
-
-
-  
-// }
-
-function onSubmit(e) {
-  e.preventDefault()
-  keyWord = e.target.elements.searchQuery.value;
-
-  if (keyWord === '') return;
-
-
-  fetchImagesByKeyWord(keyWord,1).then((artic)=> {
-    //console.log(artic);
-    return artic
-   
-    //makeGalleryMarkup(artic.hits)
-  })
-
-
-  
+  makeGalleryMarkup(array.data.hits);
 }
 
+// function onLoadMore(){
+//   const search = `${URL}?q=${query}&${searchParams}&page=${page}`;
+//   getUser(search)
 
+// }
+
+//* working
+// async function getUser(qu, p) {
+//   try {
+//     const search = `${URL}?q=${qu}&${searchParams}&page=${p}`;
+//     const response = await axios.get(search);
+//     const dataHits = response.data.hits;
+//     makeGalleryMarkup(dataHits);
+//     console.log(response);
+//   } catch (error) {
+//     console.error(error);
+//   }
+// }
+
+// Last&working
+// async function getUser(param) {
+//   try {
+//     const response = await axios.get(param);
+//     const dataHits = response.data.hits;
+//     makeGalleryMarkup(dataHits)
+//   } catch (error) {
+//     console.error(error);
+//   }
+// }
+
+const loadMoreBtn = new LoadMoreBtn({
+  selector: '[class="load-more"]',
+
+  hidden: false,
+});
 
 function makeGalleryMarkup(arr) {
-
-  const markup = arr.map(
-      ({ webformatURL, largeImageURL , tags , likes , views , comments, downloads  }) => {return  `<li class="gallery__item">
+  const markup = arr
+    .map(
+      ({
+        webformatURL,
+        largeImageURL,
+        tags,
+        likes,
+        views,
+        comments,
+        downloads,
+      }) => {
+        return `<li class="gallery__item">
               <a class="gallery__link" href="${largeImageURL}">
               <div class="photo-card">
               <img src="${webformatURL}" alt="${tags}" loading="lazy" width='240px' hight ='400px' />
@@ -165,19 +134,12 @@ function makeGalleryMarkup(arr) {
               </a>
           </li>
           
-          `
-  })
-  .join("");
-    refs.galleryElRef.insertAdjacentHTML('beforeend', markup);
+          `;
+      }
+    )
+    .join('');
+  refs.galleryElRef.insertAdjacentHTML('beforeend', markup);
 }
-
-
-
-
-
-
-
-
 
 // const form = document.querySelector("form");
 // const list = document.querySelector(".list");
