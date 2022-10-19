@@ -44,24 +44,16 @@ refs.form.addEventListener('submit', onSubmit);
 async function onSubmit(e) {
   e.preventDefault();
 
-  // Last$working
-  //   query = e.target.elements.searchQuery.value;
-  //   if(!query){
-  //     alert("Enter something")
-  //     return
-  //   }
-  //    const search = `${URL}?q=${query}&${searchParams}&page=${page}`;
-  //  getUser(search)
-
   serchImagesByKeyWord.word = e.target.elements.searchQuery.value;
 
   if (serchImagesByKeyWord.word === '') return;
 
   serchImagesByKeyWord.fetchImages();
 
-  const array = await serchImagesByKeyWord.fetchImages();
+  const dataObject = await serchImagesByKeyWord.fetchImages()
+  const arryOfImages= dataObject.data.hits
 
-  makeGalleryMarkup(array.data.hits);
+  makeGalleryMarkup(arryOfImages);
 }
 
 // function onLoadMore(){
