@@ -10,27 +10,31 @@ const searchParams = new URLSearchParams({
   per_page: 40,
 });
 
-export class SerchImagesByKeyWord {
+export class GalleryApiService {
   constructor() {
     this.keyWord = '';
     this.page = 1;
   }
    async  fetchImages() {
+    console.log(this);
     const search = `${URL}?q=${this.keyWord}&${searchParams}&page=${this.page}`;
     try {
       const response = await axios.get(search);
-      return response
+      this.incrementPage()
+      return response.data
     } catch (error) {
       console.error(error);
     }
   }
 
+  incrementPage(){
 
-//  return this.getUser(search)
-  
+    this.page+=1;
+  }
 
-
-  
+  resetPage(){
+    this.page=1;
+  }
 
   set word(newWord) {
     this.keyWord = newWord;

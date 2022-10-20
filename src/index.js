@@ -3,96 +3,61 @@ import LoadMoreBtn from '../src/js-components/loadMoreBtn';
 
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
-import { SerchImagesByKeyWord } from './searchApi';
+import { GalleryApiService, SerchImagesByKeyWord } from './searchApi';
 
-// const URL = 'https://pixabay.com/api/';
-// const searchParams = new URLSearchParams({
-//   key: '30620047-2b41fea3ffb04e82a67076d5b',
-//   image_type: 'photo',
-//   orientation: 'horizontal',
-//   safesearch: true,
-//   per_page: 40,
-// });
-// let query = '';
-// let page = 1;
-
-// const axios = require('axios').default;
-
-const serchImagesByKeyWord = new SerchImagesByKeyWord();
+const galleryApiService = new GalleryApiService();
 
 new SimpleLightbox('.gallery__link', {
   captionsData: 'alt',
   captionDelay: 250,
 });
-// const API_KEY = '30620047-2b41fea3ffb04e82a67076d5b';
-// const url='https://pixabay.com/api/'
-// const URL = `${url}?key=${API_KEY}+"&q=${query}&image_type=photo&orientation=horizontal&safesearch=true&page=${page}&per_page=40`;
-// user_id:30620047
-// Your API key: 30620047-2b41fea3ffb04e82a67076d5b
-// https://pixabay.com/api?key=30620047-2b41fea3ffb04e82a67076d5b&image_type=photo&orientation=horizontal&safesearch=true
-// const axios = require('axios').default;
 
 const refs = {
   form: document.querySelector('#search-form'),
-  galleryElRef: document.querySelector('.gallery'),
+  imagesContainer: document.querySelector('.gallery'),
   loadMoreBtn: document.querySelector('.load-more'),
 };
-
-refs.form.addEventListener('submit', onSubmit);
-//refs.loadMoreBtn.addEventListener('click', onLoadMore)
-
-async function onSubmit(e) {
-  e.preventDefault();
-
-  serchImagesByKeyWord.word = e.target.elements.searchQuery.value;
-
-  if (serchImagesByKeyWord.word === '') return;
-
-  serchImagesByKeyWord.fetchImages();
-
-  const dataObject = await serchImagesByKeyWord.fetchImages()
-  const arryOfImages= dataObject.data.hits
-
-  makeGalleryMarkup(arryOfImages);
-}
-
-// function onLoadMore(){
-//   const search = `${URL}?q=${query}&${searchParams}&page=${page}`;
-//   getUser(search)
-
-// }
-
-//* working
-// async function getUser(qu, p) {
-//   try {
-//     const search = `${URL}?q=${qu}&${searchParams}&page=${p}`;
-//     const response = await axios.get(search);
-//     const dataHits = response.data.hits;
-//     makeGalleryMarkup(dataHits);
-//     console.log(response);
-//   } catch (error) {
-//     console.error(error);
-//   }
-// }
-
-// Last&working
-// async function getUser(param) {
-//   try {
-//     const response = await axios.get(param);
-//     const dataHits = response.data.hits;
-//     makeGalleryMarkup(dataHits)
-//   } catch (error) {
-//     console.error(error);
-//   }
-// }
-
 const loadMoreBtn = new LoadMoreBtn({
   selector: '[class="load-more"]',
 
   hidden: false,
 });
 
-function makeGalleryMarkup(arr) {
+console.log(loadMoreBtn);
+
+loadMoreBtn.show()
+loadMoreBtn.disable()
+
+refs.form.addEventListener('submit', onSubmit);
+loadMoreBtn.refs.button.addEventListener('click', onLoadMore);
+
+async function onSubmit(e) {
+  e.preventDefault();
+
+  // clearImagesContainer()
+  galleryApiService.word = e.target.elements.searchQuery.value;
+  galleryApiService.resetPage();
+
+  if (galleryApiService.word === '') {
+
+    return alert('Please fill form');
+  }
+
+  await galleryApiService.fetchImages().then( dt=> {
+    clearImagesContainer();
+    appendGalleryMarkup(dt.hits)
+  }).catch(err =>console.log(err))
+}
+
+async function onLoadMore() {
+  await galleryApiService.fetchImages().then(dt=> {
+    appendGalleryMarkup(dt.hits);
+  });
+}
+
+
+
+function appendGalleryMarkup(arr) {
   const markup = arr
     .map(
       ({
@@ -130,9 +95,12 @@ function makeGalleryMarkup(arr) {
       }
     )
     .join('');
-  refs.galleryElRef.insertAdjacentHTML('beforeend', markup);
+  refs.imagesContainer.insertAdjacentHTML('beforeend', markup);
 }
 
+function clearImagesContainer() {
+  refs.imagesContainer.innerHTML = '';
+}
 // const form = document.querySelector("form");
 // const list = document.querySelector(".list");
 // const button = document.querySelector(".more");
