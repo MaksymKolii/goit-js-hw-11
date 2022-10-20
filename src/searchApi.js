@@ -36,6 +36,10 @@ export class GalleryApiService {
     this.page=1;
   }
 
+  showTotalPagesFound(){
+
+
+  }
   set word(newWord) {
     this.keyWord = newWord;
   }

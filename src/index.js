@@ -3,7 +3,7 @@ import LoadMoreBtn from '../src/js-components/loadMoreBtn';
 
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
-import { GalleryApiService, SerchImagesByKeyWord } from './searchApi';
+import { GalleryApiService } from './searchApi';
 
 const galleryApiService = new GalleryApiService();
 
@@ -20,18 +20,13 @@ const refs = {
 const loadMoreBtn = new LoadMoreBtn({
   selector: '[class="load-more"]',
 
-  hidden: false,
+  hidden: true,
 });
 
-console.log(loadMoreBtn);
-
-loadMoreBtn.show()
-loadMoreBtn.disable()
-
 refs.form.addEventListener('submit', onSubmit);
-loadMoreBtn.refs.button.addEventListener('click', onLoadMore);
+loadMoreBtn.refs.button.addEventListener('click', fetchGallery);
 
-async function onSubmit(e) {
+function onSubmit(e) {
   e.preventDefault();
 
   // clearImagesContainer()
@@ -39,19 +34,33 @@ async function onSubmit(e) {
   galleryApiService.resetPage();
 
   if (galleryApiService.word === '') {
-
-    return alert('Please fill form');
+    return Notify.warning('Please fill form');
   }
+  loadMoreBtn.show();
+  clearImagesContainer();
 
-  await galleryApiService.fetchImages().then( dt=> {
-    clearImagesContainer();
-    appendGalleryMarkup(dt.hits)
-  }).catch(err =>console.log(err))
+  fetchGallery()
 }
 
-async function onLoadMore() {
-  await galleryApiService.fetchImages().then(dt=> {
+async function fetchGallery() {
+  loadMoreBtn.disable();
+  await galleryApiService.fetchImages().then(dt => {
+
+    if(!dt.hits.length){
+
+     return Notify.failure('Sorry, there are no images matching your search query. Please try again.');
+
+    }
+    if(dt.hits.length>0){
+        Notify.info(`Hooray! We found ${dt.total} images.`)
+
+    }
+    if(dt.total <= 40){
+
+    }
     appendGalleryMarkup(dt.hits);
+    console.log(dt);
+    loadMoreBtn.enable();
   });
 }
 
