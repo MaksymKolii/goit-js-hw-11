@@ -19,7 +19,6 @@ const refs = {
 };
 const loadMoreBtn = new LoadMoreBtn({
   selector: '[class="load-more"]',
-
   hidden: true,
 });
 
@@ -44,26 +43,27 @@ function onSubmit(e) {
 
 async function fetchGallery() {
   loadMoreBtn.disable();
+
   await galleryApiService.fetchImages().then(dt => {
 
-    if(!dt.hits.length){
+    // if(!dt.hits.length){
+    //  return Notify.failure('Sorry, there are no images matching your search query. Please try again.');
+    // }
+   
+    const totalPages = Math.round(dt.total / 40);
 
-     return Notify.failure('Sorry, there are no images matching your search query. Please try again.');
-
+    // if(galleryApiService.page <=2){
+    //     Notify.info(`Hooray! We found ${dt.total} images.`)
+    // }
+    if(galleryApiService.page -2 >=totalPages){
+      loadMoreBtn.hide()
+     Notify.info("We're sorry, but you've reached the end of search results.")
     }
-    if(dt.hits.length>0){
-        Notify.info(`Hooray! We found ${dt.total} images.`)
-
-    }
-    if(dt.total <= 40){
-
-    }
+  
     appendGalleryMarkup(dt.hits);
-    console.log(dt);
     loadMoreBtn.enable();
   });
 }
-
 
 
 function appendGalleryMarkup(arr) {
@@ -78,29 +78,49 @@ function appendGalleryMarkup(arr) {
         comments,
         downloads,
       }) => {
-        return `<li class="gallery__item">
-              <a class="gallery__link" href="${largeImageURL}">
-              <div class="photo-card">
-              <img src="${webformatURL}" alt="${tags}" loading="lazy" width='240px' hight ='400px' />
-              <div class="info">
-                <p class="info-item">
-                  <b>Likes${likes}</b>
-                </p>
-                <p class="info-item">
-                  <b>Views${views}</b>
-                </p>
-                <p class="info-item">
-                  <b>Comments${comments}</b>
-                </p>
-                <p class="info-item">
-                  <b>Downloads${downloads}</b>
-                </p>
-              </div>
-            </div>
-              </a>
-          </li>
+        // return `<li class="gallery__item">
+        //       <a class="gallery__link" href="${largeImageURL}">
+        //       <div class="photo-card">
+        //       <img src="${webformatURL}" alt="${tags}" loading="lazy" width='240px' hight ='400px' />
+        //       <div class="info">
+        //         <p class="info-item">
+        //           <b>Likes${likes}</b>
+        //         </p>
+        //         <p class="info-item">
+        //           <b>Views${views}</b>
+        //         </p>
+        //         <p class="info-item">
+        //           <b>Comments${comments}</b>
+        //         </p>
+        //         <p class="info-item">
+        //           <b>Downloads${downloads}</b>
+        //         </p>
+        //       </div>
+        //     </div>
+        //       </a>
+        //   </li>
           
-          `;
+        //   `;
+
+
+        return `<a class="gallery-link" href="${largeImageURL}"><div class="photo-card">
+        <img src="${webformatURL}" alt=" ${tags}" width="280" height="190" loading="lazy" />
+        
+        <div class="info">
+          <p class="info-item">
+            <b>Likes</b>${likes}
+          </p>
+          <p class="info-item">
+            <b>Views </b>${views}
+          </p>
+          <p class="info-item">
+            <b>Comments</b>${comments}
+          </p>
+          <p class="info-item">
+            <b>Downloads </b>${downloads}
+          </p>
+        </div>
+      </div></a>`
       }
     )
     .join('');
