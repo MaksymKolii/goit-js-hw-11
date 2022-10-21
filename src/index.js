@@ -4,7 +4,7 @@ import LoadMoreBtn from '../src/js-components/loadMoreBtn';
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
 import { GalleryApiService } from './searchApi';
-
+let currentpage =0;
 const galleryApiService = new GalleryApiService();
 
 new SimpleLightbox('.gallery__link', {
@@ -27,8 +27,7 @@ loadMoreBtn.refs.button.addEventListener('click', fetchGallery);
 
 function onSubmit(e) {
   e.preventDefault();
-
-  // clearImagesContainer()
+  
   galleryApiService.word = e.target.elements.searchQuery.value;
   galleryApiService.resetPage();
 
@@ -43,26 +42,20 @@ function onSubmit(e) {
 
 async function fetchGallery() {
   loadMoreBtn.disable();
-
+  
   await galleryApiService.fetchImages().then(dt => {
 
-    // if(!dt.hits.length){
-    //  return Notify.failure('Sorry, there are no images matching your search query. Please try again.');
-    // }
-   
-    const totalPages = Math.round(dt.total / 40);
-
-    // if(galleryApiService.page <=2){
-    //     Notify.info(`Hooray! We found ${dt.total} images.`)
-    // }
-    if(galleryApiService.page -2 >=totalPages){
+    if(currentpage >=galleryApiService.total){
+      console.log(galleryApiService.total);
       loadMoreBtn.hide()
      Notify.info("We're sorry, but you've reached the end of search results.")
     }
-  
+
     appendGalleryMarkup(dt.hits);
     loadMoreBtn.enable();
+    currentpage+=1;
   });
+  
 }
 
 
@@ -125,6 +118,7 @@ function appendGalleryMarkup(arr) {
     )
     .join('');
   refs.imagesContainer.insertAdjacentHTML('beforeend', markup);
+  
 }
 
 function clearImagesContainer() {

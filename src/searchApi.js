@@ -14,22 +14,28 @@ export class GalleryApiService {
   constructor() {
     this.keyWord = '';
     this.page = 1;
+    this.totalPages=1;
   }
+
+  
   async fetchImages() {
     //console.log(this);
     const search = `${URL}?q=${this.keyWord}&${searchParams}&page=${this.page}`;
     try {
       const response = await axios.get(search);
-      this.incrementPage();
-      if(!response.data.hits.length){
-        return Notify.failure('Sorry, there are no images matching your search query. Please try again.');
-       }
+      
+       if(this.page ===1 && response.data.hits.length){
 
-       if(this.page <=2){
+       this.totalPages = Math.round(response.data.total / 40)
         Notify.info(`Hooray! We found ${response.data.total} images.`)
+        
     }
+    this.incrementPage();
+    
+
       return response.data;
     } catch (error) {
+      Notify.failure('Sorry, there are no images matching your search query. Please try again.');
       console.error(error);
     }
   }
@@ -49,21 +55,10 @@ export class GalleryApiService {
     return this.keyWord;
   }
 
-  // checkLastPage() {
-  //   this.fetchImages().then(data => {
-  //     const totalPages = Math.round(data.total / this.per_page);
-  //     if(this.page>=totalPages){
-        
-  //     }
-  //     return totalPages;
-  //   });
-  // }
-
-
-  // set page(newPage) {
-  //   this.page = newPage;
-  // }
-  // get page() {
-  //   return this.page;
-  // }
+  set total(newTot) {
+    this.totalPages = newTot;
+  }
+  get total() {
+    return this.totalPages;
+  }
 }
