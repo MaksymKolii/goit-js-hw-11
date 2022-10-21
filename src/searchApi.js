@@ -7,35 +7,22 @@ const searchParams = new URLSearchParams({
   image_type: 'photo',
   orientation: 'horizontal',
   safesearch: true,
-  per_page: 40,
 });
 
 export class GalleryApiService {
   constructor() {
     this.keyWord = '';
     this.page = 1;
-    this.totalPages=1;
+    this.per_page =40;
   }
 
   
   async fetchImages() {
-    //console.log(this);
-    const search = `${URL}?q=${this.keyWord}&${searchParams}&page=${this.page}`;
+    const search = `${URL}?q=${this.keyWord}&${searchParams}&page=${this.page}&per_page=${this.per_page}`;
     try {
       const response = await axios.get(search);
-      
-       if(this.page ===1 && response.data.hits.length){
-
-       this.totalPages = Math.round(response.data.total / 40)
-        Notify.info(`Hooray! We found ${response.data.total} images.`)
-        
-    }
-    this.incrementPage();
-    
-
       return response.data;
     } catch (error) {
-      Notify.failure('Sorry, there are no images matching your search query. Please try again.');
       console.error(error);
     }
   }
@@ -48,17 +35,24 @@ export class GalleryApiService {
     this.page = 1;
   }
 
-  set word(newWord) {
+  set query(newWord) {
     this.keyWord = newWord;
   }
-  get word() {
+  get query() {
     return this.keyWord;
   }
 
-  set total(newTot) {
-    this.totalPages = newTot;
+  set perPage(newPerPage) {
+    this.per_page = newPerPage;
   }
-  get total() {
-    return this.totalPages;
+  get perPage() {
+    return this.per_page;
+  }
+  
+  set currentPage(newPageg) {
+    this.page = newPageg;
+  }
+  get currentPage() {
+    return this.page;
   }
 }

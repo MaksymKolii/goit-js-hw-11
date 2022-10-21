@@ -1,63 +1,75 @@
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
 import LoadMoreBtn from '../src/js-components/loadMoreBtn';
-
+import { getRefs } from './js-components/refList';
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
 import { GalleryApiService } from './searchApi';
-let currentpage =0;
+
 const galleryApiService = new GalleryApiService();
-
-new SimpleLightbox('.gallery__link', {
-  captionsData: 'alt',
-  captionDelay: 250,
-});
-
-const refs = {
-  form: document.querySelector('#search-form'),
-  imagesContainer: document.querySelector('.gallery'),
-  loadMoreBtn: document.querySelector('.load-more'),
-};
+const refs = getRefs()
 const loadMoreBtn = new LoadMoreBtn({
   selector: '[class="load-more"]',
   hidden: true,
 });
 
+
 refs.form.addEventListener('submit', onSubmit);
-loadMoreBtn.refs.button.addEventListener('click', fetchGallery);
+loadMoreBtn.refs.button.addEventListener('click', clickLoadMoreBtn);
+
+
+// const simpleLightbox = new SimpleLightbox('.gallery a');
+
 
 function onSubmit(e) {
   e.preventDefault();
-  
-  galleryApiService.word = e.target.elements.searchQuery.value;
+
+  galleryApiService.query = e.target.elements.searchQuery.value;
   galleryApiService.resetPage();
 
-  if (galleryApiService.word === '') {
-    return Notify.warning('Please fill form');
+  if (galleryApiService.query === '') {
+    return Notify.warning("Please enter something! I'm trying my best...");
   }
+  e.target.elements.searchQuery.value = '';
   loadMoreBtn.show();
   clearImagesContainer();
+  fetchGallery();
 
-  fetchGallery()
+  
+  // simpleLightbox.refresh()
 }
 
-async function fetchGallery() {
-  loadMoreBtn.disable();
-  
-  await galleryApiService.fetchImages().then(dt => {
+function clickLoadMoreBtn() {
+  galleryApiService.incrementPage();
+  fetchGallery();
+}
 
-    if(currentpage >=galleryApiService.total){
-      console.log(galleryApiService.total);
-      loadMoreBtn.hide()
-     Notify.info("We're sorry, but you've reached the end of search results.")
+function fetchGallery() {
+  loadMoreBtn.disable();
+
+
+  galleryApiService.fetchImages().then(({ hits, total }) => {
+    const totalPages = Math.ceil(total / galleryApiService.perPage);
+    if (!hits.length) {
+      loadMoreBtn.hide();
+      return Notify.failure(
+        'Sorry, there are no images matching your search query. Please try again.'
+      );
     }
 
-    appendGalleryMarkup(dt.hits);
-    loadMoreBtn.enable();
-    currentpage+=1;
-  });
-  
-}
+    if (galleryApiService.currentPage === 1 && hits.length) {
+      Notify.info(`Hooray! We found ${total} images.`);
+    }
 
+    if (galleryApiService.currentPage === totalPages) {
+      loadMoreBtn.hide();
+      Notify.info("We're sorry, but you've reached the end of search results.");
+    }
+    appendGalleryMarkup(hits);
+    const simpleLightbox = new SimpleLightbox('.gallery a');
+    simpleLightbox.refresh()
+    loadMoreBtn.enable();
+  });
+}
 
 function appendGalleryMarkup(arr) {
   const markup = arr
@@ -71,31 +83,6 @@ function appendGalleryMarkup(arr) {
         comments,
         downloads,
       }) => {
-        // return `<li class="gallery__item">
-        //       <a class="gallery__link" href="${largeImageURL}">
-        //       <div class="photo-card">
-        //       <img src="${webformatURL}" alt="${tags}" loading="lazy" width='240px' hight ='400px' />
-        //       <div class="info">
-        //         <p class="info-item">
-        //           <b>Likes${likes}</b>
-        //         </p>
-        //         <p class="info-item">
-        //           <b>Views${views}</b>
-        //         </p>
-        //         <p class="info-item">
-        //           <b>Comments${comments}</b>
-        //         </p>
-        //         <p class="info-item">
-        //           <b>Downloads${downloads}</b>
-        //         </p>
-        //       </div>
-        //     </div>
-        //       </a>
-        //   </li>
-          
-        //   `;
-
-
         return `<a class="gallery-link" href="${largeImageURL}"><div class="photo-card">
         <img src="${webformatURL}" alt=" ${tags}" width="280" height="190" loading="lazy" />
         
@@ -113,95 +100,13 @@ function appendGalleryMarkup(arr) {
             <b>Downloads </b>${downloads}
           </p>
         </div>
-      </div></a>`
+      </div></a>`;
       }
     )
     .join('');
   refs.imagesContainer.insertAdjacentHTML('beforeend', markup);
-  
 }
 
 function clearImagesContainer() {
   refs.imagesContainer.innerHTML = '';
 }
-// const form = document.querySelector("form");
-// const list = document.querySelector(".list");
-// const button = document.querySelector(".more");
-
-// const BASE_URL = "https://app.ticketmaster.com/discovery/v2/events.json";
-// const API = "9cTjAjlRB53wyhAFk5VzXcBu5GiPU6fK";
-
-// let pageToFetch = 0;
-// let keyword = "";
-
-// function fetchEvent(page, keyword) {
-//   const params = new URLSearchParams({
-//     apikey: API,
-//     page,
-//     keyword,
-//     size: 50,
-//   });
-
-//   return fetch(`${BASE_URL}?${params}`)
-//     .then((response) => {
-//       if (!response.ok) {
-//         throw new Error(response.status);
-//       }
-//       return response.json();
-//     })
-//     .catch((error) => console.log(error));
-// }
-
-// function getEvents(page, keyword) {
-//   fetchEvent(page, keyword).then((data) => {
-//     console.log(data.page.totalElements);
-
-//     if (data.page.totalElements === 0) {
-//       button.classList.add("invisible");
-//       alert(`There are no events by keyword ${keyword}`);
-//     }
-
-//     const events = data?._embedded?.events;
-//     if (events) {
-//       renderEvents(events);
-//     }
-
-//     if (pageToFetch === data.page.totalPages - 1) {
-//       button.classList.add("invisible");
-//       alert("Finish");
-//       return;
-//     }
-//     pageToFetch += 1;
-//     if (data.page.totalPages > 1) {
-//       button.classList.remove("invisible");
-//     }
-//   });
-// }
-
-// function renderEvents(events) {
-//   const markup = events
-//     .map(({ name, images }) => {
-//       return `<li>
-//     <img src='${images[0].url}' alt='${name}' width='200'>
-//     <p>${name}</p>
-//     </li>`;
-//     })
-//     .join("");
-//   list.insertAdjacentHTML("beforeend", markup);
-// }
-
-// form.addEventListener("submit", (event) => {
-//   event.preventDefault();
-//   const query = event.target.elements.query.value;
-//   keyword = query;
-//   pageToFetch = 0;
-//   list.innerHTML = "";
-//   if (!query) {
-//     return;
-//   }
-//   getEvents(pageToFetch, query);
-// });
-
-// button.addEventListener("click", () => {
-//   getEvents(pageToFetch, keyword);
-// });
