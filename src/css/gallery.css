@@ -68,6 +68,8 @@ button > .spinner.is-hidden {
   justify-content: space-around;
   padding: 10px;
   font-size: 14px;
+  /* text-shadow: 1px 1px 20px #5c1e1e, 5px 5px 10px #000000; */
+ 
 }
 
 .info-item {

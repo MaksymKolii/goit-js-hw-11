@@ -4,7 +4,8 @@ import { getRefs } from './js-components/refList';
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
 import { GalleryApiService } from './searchApi';
-
+import {appendGalleryMarkup} from './js-components/renderMarkup';
+ 
 const galleryApiService = new GalleryApiService();
 const refs = getRefs()
 const loadMoreBtn = new LoadMoreBtn({
@@ -67,46 +68,23 @@ function fetchGallery() {
     appendGalleryMarkup(hits);
     const simpleLightbox = new SimpleLightbox('.gallery a');
     simpleLightbox.refresh()
+    smoothScroll()
     loadMoreBtn.enable();
   });
 }
 
-function appendGalleryMarkup(arr) {
-  const markup = arr
-    .map(
-      ({
-        webformatURL,
-        largeImageURL,
-        tags,
-        likes,
-        views,
-        comments,
-        downloads,
-      }) => {
-        return `<a class="gallery-link" href="${largeImageURL}"><div class="photo-card">
-        <img src="${webformatURL}" alt=" ${tags}" width="280" height="190" loading="lazy" />
-        
-        <div class="info">
-          <p class="info-item">
-            <b>Likes</b>${likes}
-          </p>
-          <p class="info-item">
-            <b>Views </b>${views}
-          </p>
-          <p class="info-item">
-            <b>Comments</b>${comments}
-          </p>
-          <p class="info-item">
-            <b>Downloads </b>${downloads}
-          </p>
-        </div>
-      </div></a>`;
-      }
-    )
-    .join('');
-  refs.imagesContainer.insertAdjacentHTML('beforeend', markup);
-}
+
 
 function clearImagesContainer() {
   refs.imagesContainer.innerHTML = '';
+}
+
+function smoothScroll() {
+  const { height: cardHeight } =
+    refs.imagesContainer.firstElementChild.getBoundingClientRect();
+
+  window.scrollBy({
+    top: cardHeight * 2.3,
+    behavior: 'smooth',
+  });
 }
