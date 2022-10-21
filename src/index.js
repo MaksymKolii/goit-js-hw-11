@@ -34,9 +34,6 @@ function onSubmit(e) {
   loadMoreBtn.show();
   clearImagesContainer();
   fetchGallery();
-
-  
-  // simpleLightbox.refresh()
 }
 
 function clickLoadMoreBtn() {
@@ -80,8 +77,8 @@ function clearImagesContainer() {
 }
 
 function smoothScroll() {
-  const { height: cardHeight } =
-    refs.imagesContainer.firstElementChild.getBoundingClientRect();
+  const { height: cardHeight }=document
+  .querySelector('.gallery').firstElementChild.getBoundingClientRect();
 
   window.scrollBy({
     top: cardHeight * 2.3,
