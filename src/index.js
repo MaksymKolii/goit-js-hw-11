@@ -5,6 +5,7 @@ import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
 import { GalleryApiService } from './searchApi';
 import {appendGalleryMarkup} from './js-components/renderMarkup';
+const axios = require('axios').default;
  
 const galleryApiService = new GalleryApiService();
 const refs = getRefs()
@@ -17,14 +18,10 @@ const loadMoreBtn = new LoadMoreBtn({
 refs.form.addEventListener('submit', onSubmit);
 loadMoreBtn.refs.button.addEventListener('click', clickLoadMoreBtn);
 
-
-// const simpleLightbox = new SimpleLightbox('.gallery a');
-
-
 function onSubmit(e) {
   e.preventDefault();
 
-  galleryApiService.query = e.target.elements.searchQuery.value;
+  galleryApiService.query = e.target.elements.searchQuery.value.trim();
   galleryApiService.resetPage();
 
   if (galleryApiService.query === '') {
@@ -38,36 +35,72 @@ function onSubmit(e) {
 
 function clickLoadMoreBtn() {
   galleryApiService.incrementPage();
+  smoothScroll()
   fetchGallery();
+  
 }
 
-function fetchGallery() {
+async function fetchGallery() {
   loadMoreBtn.disable();
-
-
-  galleryApiService.fetchImages().then(({ hits, total }) => {
-    const totalPages = Math.ceil(total / galleryApiService.perPage);
-    if (!hits.length) {
+  try {
+    const response = await galleryApiService.fetchImages();
+    const totalPages = Math.ceil(response.totalHits / galleryApiService.perPage);
+    if (!response.hits.length) {
       loadMoreBtn.hide();
       return Notify.failure(
         'Sorry, there are no images matching your search query. Please try again.'
       );
     }
 
-    if (galleryApiService.currentPage === 1 && hits.length) {
-      Notify.info(`Hooray! We found ${total} images.`);
+    if (galleryApiService.currentPage === 1 && response.hits.length) {
+      Notify.info(`Hooray! We found ${response.totalHits} images.`);
     }
+     if (galleryApiService.currentPage === totalPages) {
 
-    if (galleryApiService.currentPage === totalPages) {
       loadMoreBtn.hide();
       Notify.info("We're sorry, but you've reached the end of search results.");
     }
-    appendGalleryMarkup(hits);
+    appendGalleryMarkup(response.hits);
     const simpleLightbox = new SimpleLightbox('.gallery a');
     simpleLightbox.refresh()
-    smoothScroll()
+    if(galleryApiService.currentPage>1){
+      smoothScroll()
+    }
     loadMoreBtn.enable();
-  });
+    
+  } catch (error) {
+    console.log(error);
+    
+  }
+
+
+
+  // galleryApiService.fetchImages().then(({ hits, totalHits}) => {
+  //   const totalPages = Math.ceil(totalHits / galleryApiService.perPage);
+  //   // const fetchCounter = Math.ceil()
+  //   if (!hits.length) {
+  //     loadMoreBtn.hide();
+  //     return Notify.failure(
+  //       'Sorry, there are no images matching your search query. Please try again.'
+  //     );
+  //   }
+
+  //   if (galleryApiService.currentPage === 1 && hits.length) {
+  //     Notify.info(`Hooray! We found ${totalHits} images.`);
+  //   }
+  //    if (galleryApiService.currentPage === totalPages) {
+
+  //     loadMoreBtn.hide();
+  //     Notify.info("We're sorry, but you've reached the end of search results.");
+  //   }
+  //   appendGalleryMarkup(hits);
+  //   const simpleLightbox = new SimpleLightbox('.gallery a');
+  //   simpleLightbox.refresh()
+  //   if(galleryApiService.currentPage>1){
+  //     smoothScroll()
+  //   }
+  //   loadMoreBtn.enable();
+  // });
 }
 
 
