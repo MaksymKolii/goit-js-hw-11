@@ -13,14 +13,14 @@ export class GalleryApiService {
   constructor() {
     this.keyWord = '';
     this.page = 1;
-    this.per_page =40;
+    this.per_page = 40;
   }
 
-  
   async fetchImages() {
     const search = `${URL}?q=${this.keyWord}&${searchParams}&page=${this.page}&per_page=${this.per_page}`;
     try {
       const response = await axios.get(search);
+
       return response.data;
     } catch (error) {
       console.error(error);
@@ -48,7 +48,7 @@ export class GalleryApiService {
   get perPage() {
     return this.per_page;
   }
-  
+
   set currentPage(newPageg) {
     this.page = newPageg;
   }
